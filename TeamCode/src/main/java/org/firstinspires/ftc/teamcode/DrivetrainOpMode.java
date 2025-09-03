@@ -58,8 +58,8 @@ public class DrivetrainOpMode extends LinearOpMode{
 
     private DcMotor         leftDrive   = null;
     private DcMotor         rightDrive  = null;
-    static final double     FORWARD_SPEED = 1;
-    static final double     TURN_SPEED    = 0.5;    // Declare OpMode members.
+    static double     FORWARD_SPEED = 1;
+    static double     TURN_SPEED    = 0.5;    // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
 
     /*
@@ -130,10 +130,15 @@ public class DrivetrainOpMode extends LinearOpMode{
 
             int DPadVert=getDPadVert();
 
+            if(gamepad1.right_trigger==1f){
+                FORWARD_SPEED=0.5f;
+            }else{
+                FORWARD_SPEED=1f;
+            }
+
             /*
             * Checks for any input on the dpad, and if so,
             * cancels and analog stick movement
-            * may not be the most efficient method but works
             * */
 
             if(DPadVert==0) {
@@ -146,16 +151,23 @@ public class DrivetrainOpMode extends LinearOpMode{
                 // rightPower = -gamepad1.right_stick_y ;
 
                 // Send calculated power to wheels
-                leftDrive.setPower(leftPower);
-                rightDrive.setPower(rightPower);
+                leftDrive.setPower(leftPower*FORWARD_SPEED);
+                rightDrive.setPower(rightPower*FORWARD_SPEED);
 
                 // Show the elapsed game time and wheel power.
                 telemetry.addData("Status", "Run Time: " + runtime.toString());
                 telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
                 telemetry.update();
             }else{
+                /*
+                * Only forwards and backwards movement
+                * on DPad can move robot forwards and backwards for .5 seconds
+                * */
                 driveTrain(.5,DPadVert);
             }
         }
+        // Stop motors when OpMode is stopped at the end of the match
+        leftDrive.setPower(0);
+        rightDrive.setPower(0);
     }
 }
